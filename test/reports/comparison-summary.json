@@ -5,8 +5,8 @@
     "contains": true
   },
   "markdown-formatting": {
-    "html": "<strong>Bold</strong> and <em>italic</em> text.",
-    "size": 47,
+    "html": "**Bold** and *italic* text.",
+    "size": 27,
     "contains": true
   },
   "passage-links": {
