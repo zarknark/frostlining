@@ -54,6 +54,11 @@ tw-storydata {
 	display: none;
 }
 
+/* class for hiding blocks */
+.fl-hidden {
+    display: none;
+}
+
 /* scale font sizes for phones */
 
 @media screen and (max-width: 480px) {

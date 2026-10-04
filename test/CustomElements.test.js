@@ -54,7 +54,7 @@ describe('Custom HTML Elements', () => {
     
     // Should apply the hidden style to custom-elem, not create <custom>
     expect(result).toContain('<custom-elem');
-    expect(result).toContain('style="display:none"');
+    expect(result).toContain('class="fl-hidden"');
     expect(result).toContain('hidden content</custom-elem>');
     expect(result).not.toContain('<custom>'); // Should not turn into <custom> (without -elem)
   });
@@ -65,7 +65,7 @@ describe('Custom HTML Elements', () => {
     
     expect(result).toContain('<my-widget>widget1</my-widget>');
     expect(result).toContain('<another-element');
-    expect(result).toContain('style="display:none"');
+    expect(result).toContain('class="fl-hidden"');
     expect(result).toContain('hidden widget</another-element>');
   });
 
@@ -87,7 +87,7 @@ describe('Custom HTML Elements', () => {
     const result = passage.render();
     
     expect(result).toContain('<div');
-    expect(result).toContain('style="display:none"');
+    expect(result).toContain('class="fl-hidden"');
     expect(result).toContain('hidden div</div>');
     expect(result).toContain('<span');
     expect(result).toContain('class="highlight"');

@@ -6,8 +6,8 @@ describe('renderAttrs', () => {
     });
 
     it('renders style for "-" shorthand', () => {
-        expect(renderAttrs('-')).toBe('style="display:none"');
-        expect(renderAttrs('--')).toBe('style="display:none" style="display:none"');
+        expect(renderAttrs('-')).toBe('class="fl-hidden"');
+        expect(renderAttrs('--')).toBe('class="fl-hidden fl-hidden"');
     });
 
     it('renders href for "0" shorthand', () => {
@@ -16,19 +16,19 @@ describe('renderAttrs', () => {
     });
 
     it('renders both "-" and "0" shorthands', () => {
-        expect(renderAttrs('-0')).toBe('style="display:none" href="javascript:void(0)"');
-        expect(renderAttrs('0-')).toBe('href="javascript:void(0)" style="display:none"');
+        expect(renderAttrs('-0')).toBe('href="javascript:void(0)" class="fl-hidden"');
+        expect(renderAttrs('0-')).toBe('href="javascript:void(0)" class="fl-hidden"');
     });
 
     it('renders id attribute', () => {
         expect(renderAttrs('#foo')).toBe('id="foo"');
-        expect(renderAttrs('-#bar')).toBe('style="display:none" id="bar"');
+        expect(renderAttrs('-#bar')).toBe('id="bar" class="fl-hidden"');
     });
 
     it('renders class attribute', () => {
         expect(renderAttrs('.foo')).toBe('class="foo"');
         expect(renderAttrs('.foo.bar')).toBe('class="foo bar"');
-        expect(renderAttrs('-.foo.bar')).toBe('style="display:none" class="foo bar"');
+        expect(renderAttrs('-.foo.bar')).toBe('class="fl-hidden foo bar"');
     });
 
     it('renders id and class together', () => {
@@ -39,7 +39,7 @@ describe('renderAttrs', () => {
 
     it('renders all shorthands together', () => {
         expect(renderAttrs('-0#foo.bar.baz')).toBe(
-            'style="display:none" href="javascript:void(0)" id="foo" class="bar baz"'
+            'href="javascript:void(0)" id="foo" class="fl-hidden bar baz"'
         );
     });
 
@@ -56,13 +56,13 @@ describe('renderAttrs', () => {
     it('does not add id or class if not present', () => {
         // Lines 47-51: if (id !== null) { ... } if (classes.length > 0) { ... }
         // If neither id nor class is present, nothing should be added.
-        expect(renderAttrs('-0')).toBe('style="display:none" href="javascript:void(0)"');
+        expect(renderAttrs('-0')).toBe('href="javascript:void(0)" class="fl-hidden"');
         expect(renderAttrs('')).toBe('');
     });
 
     it('adds only id if class is not present', () => {
         expect(renderAttrs('#onlyid')).toBe('id="onlyid"');
-        expect(renderAttrs('-#onlyid')).toBe('style="display:none" id="onlyid"');
+        expect(renderAttrs('-#onlyid')).toBe('id="onlyid" class="fl-hidden"');
     });
 
     it('adds only class if id is not present', () => {
@@ -72,7 +72,7 @@ describe('renderAttrs', () => {
 
     it('trims trailing spaces in result', () => {
         // Should not have trailing spaces even if only one attribute is present
-        expect(renderAttrs('-')).toBe('style="display:none"');
+        expect(renderAttrs('-')).toBe('class="fl-hidden"');
         expect(renderAttrs('.foo')).toBe('class="foo"');
         expect(renderAttrs('#foo')).toBe('id="foo"');
     });

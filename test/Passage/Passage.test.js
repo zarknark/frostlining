@@ -76,7 +76,7 @@ describe('Passage', () => {
             const passage = new Passage(1, 'Test', [], '<a-0.class#id>Link</a>');
             const html = passage.render();
             // Adjusted regex to properly escape characters
-            expect(html).toMatch(/<a style="display:none" href="javascript:void\(0\)" id="id" class="class">Link<\/a>/);
+            expect(html).toMatch(/<a href="javascript:void\(0\)" id="id" class="fl-hidden class">Link<\/a>/);
         });
 
         // Line 142: test renderAttrs with no attrs (should return empty string)
@@ -99,8 +99,7 @@ describe('Passage', () => {
             
             // Should have standard id attribute, class from shorthand, and style from dash shorthand
             expect(html).toContain('id="test"');
-            expect(html).toContain('class="myClass"');
-            expect(html).toContain('style="display:none"');
+            expect(html).toContain('class="fl-hidden myClass"');
             expect(html).toContain('Content');
         });
 
@@ -158,8 +157,7 @@ describe('Passage', () => {
             expect(html).toContain('id="standard"');
             expect(html).toContain('data-test="value"'); 
             expect(html).toContain('id="shortId"'); // Note: this will override the standard id in final output
-            expect(html).toContain('class="class1 class2"');
-            expect(html).toContain('style="display:none"');
+            expect(html).toContain('class="fl-hidden class1 class2"');
             expect(html).toContain('href="javascript:void(0)"');
             expect(html).toContain('Complex content');
         });
@@ -235,10 +233,9 @@ describe('Passage', () => {
             const html = passage.render();
             
             // Should have shorthand processed but no standard attributes
-            expect(html).toContain('style="display:none"');
+            expect(html).toContain('class="fl-hidden"');
             expect(html).toContain('Hidden content');
             expect(html).not.toContain('id=');
-            expect(html).not.toContain('class=');
         });
 
         it('should test edge case with only whitespace attributes', () => {
