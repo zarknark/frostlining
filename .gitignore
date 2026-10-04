@@ -20,3 +20,7 @@ jspm_packages/
 
 # MacOS X Indexing
 .DS_Store
+
+# build & IDEA folders
+.idea/
+build/
