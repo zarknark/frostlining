@@ -86,7 +86,7 @@ describe('Parser', () => {
     });
 
     describe('Underscore parsing', () => {
-      it('should recognize opening and closing tags', () => {
+      it('should recognize basic opening and closing tags', () => {
         const parser = new Parser();
         let tokens = parser.tokenize("<%%>");
 
@@ -101,6 +101,39 @@ describe('Parser', () => {
         expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
 
       });
+
+      it('should recognize interpolate-type opening tags', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("<%=%>");
+
+        expect(tokens.length).toBe(2);
+        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-start', value: '<%='});
+        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'});
+
+        tokens = parser.tokenize("<%= story.helloWorld %>");
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-start', value: '<%='});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' story.helloWorld '});
+        expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
+      })
+
+      it('should recognize interpolate-and-escape-type opening tags', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("<%-%>");
+
+        expect(tokens.length).toBe(2);
+        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-esc-start', value: '<%-'});
+        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'});
+
+        tokens = parser.tokenize("<%- <br>\n story.helloWorld <br> \n%>");
+        expect(tokens.length).toBe(6);
+        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-esc-start', value: '<%-'});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' <br>'});
+        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'story.helloWorld <br> '});
+        expect(tokens[4]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[5]).toStrictEqual({type: 'underscore-end', value: '%>'});
+      })
     });
 
     describe('Link parsing', () => {
@@ -155,6 +188,36 @@ describe('Parser', () => {
 
     describe('Frostlining parsing', () => {
       // '<|[var_name]'
+      it('should parse varname tags', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("<|variable-name");
+
+        expect(tokens.length).toBe(2);
+        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toStrictEqual({type: 'word', value: 'variable-name'});
+
+        tokens = parser.tokenize("<| variable-name \n\n");
+        expect(tokens.length).toBe(5);
+        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toStrictEqual({type: 'word', value: 'variable-name'});
+        expect(tokens[2]).toStrictEqual({type: 'source', value: ' '});
+        expect(tokens[3]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[4]).toStrictEqual({type: 'newline', value: '\n'});
+
+        tokens = parser.tokenize("<|\n\nvariable-name ");
+        expect(tokens.length).toBe(4);
+        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name '});
+
+        tokens = parser.tokenize("<| \nvariable-name ");
+        expect(tokens.length).toBe(4);
+        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' '});
+        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name '});
+      })
 
       // Conditional tag: '<?[JS_expr]? [ source ] | [source] ?>'
       // '<?[JS_expr]?[source]'
@@ -166,6 +229,7 @@ describe('Parser', () => {
       // '<[html-shorthand]:' ':>'
     });
 
+    // DO THIS ONLY AFTER MAKING SURE BASIC PASSAGE FUNCTIONALITY WORKS.
     describe('Frostlining dialogue parsing', () => {
       // '<<<' '>>>' (start / end dialogue section)
 
@@ -252,6 +316,5 @@ describe('Parser', () => {
         });
       });
     });
-
   });
 });
