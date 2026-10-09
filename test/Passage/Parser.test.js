@@ -20,7 +20,7 @@ describe('Parser', () => {
       expect(parser.beginningOfLine).toBe(true);
       expect(parser.INLINE_WS).toEqual(/[ \t]/);
       expect(parser.NEWLINE_WS).toEqual(/[\r\n]/);
-      expect(parser.STYLING_NAMES).toEqual(/[A-Za-z-_.# ]/);
+      expect(parser.SHORTHAND_CHARS).toEqual(/[A-Za-z-_.# ]/);
     });
   });
 
@@ -46,14 +46,14 @@ describe('Parser', () => {
         parser.beginningOfLine = false;
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(1);
-        expect(tokens[0]).toStrictEqual({type: 'text', value: input})
+        expect(tokens[0]).toStrictEqual({type: 'source', value: input})
         parser.beginningOfLine = false;
 
         input = "\t   \t"
         parser.beginningOfLine = false;
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(1);
-        expect(tokens[0]).toStrictEqual({type: 'text', value: input})
+        expect(tokens[0]).toStrictEqual({type: 'source', value: input})
       });
 
       it('should return all newlines, regardless of the value of beginningOfLine', () => {
@@ -89,64 +89,105 @@ describe('Parser', () => {
       it('should recognize opening and closing tags', () => {
         const parser = new Parser();
         let tokens = parser.tokenize("<%%>");
+
         expect(tokens.length).toBe(2);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'})
-        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'})
+        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'});
+        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'});
 
         tokens = parser.tokenize("<% print('Hello World') %>");
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'})
-        expect(tokens[1]).toStrictEqual({type: 'text', value: ' print(\'Hello World\') '})
-        expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'})
+        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' print(\'Hello World\') '});
+        expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
 
       });
     });
 
     describe('Link parsing', () => {
-      // '[[label|dest]]'
+      it('should parse normal links', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("[[source|dest_passage]]");
 
-      // '[[label->dest]]'
+        expect(tokens.length).toBe(5);
+        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'source'});
+        expect(tokens[2]).toStrictEqual({type: 'pipe', value: '|'});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'dest_passage'});
+        expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+      })
 
-      // '[[dest<-label]]'
+      it('should parse arrow links', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("[[source->dest_passage]]");
 
-      // '[[dest]]'
+        expect(tokens.length).toBe(5);
+        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'source'});
+        expect(tokens[2]).toStrictEqual({type: 'arrow', value: '->'});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'dest_passage'});
+        expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+      })
+
+      it('should parse destination-only links', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("[[dest_passage]]");
+
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'dest_passage'});
+        expect(tokens[2]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+      })
+
+      it('should parse embed links', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("[[dest_passage<-source]]");
+
+        expect(tokens.length).toBe(5);
+        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'dest_passage'});
+        expect(tokens[2]).toStrictEqual({type: 'rev-arrow', value: '<-'});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'source'});
+        expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+
+      })
     });
 
 
     describe('Frostlining parsing', () => {
       // '<|[var_name]'
 
-      // '<?[JS_expr]?[text]'
+      // Conditional tag: '<?[JS_expr]? [ source ] | [source] ?>'
+      // '<?[JS_expr]?[source]'
 
-      // '[text] | [text]'
+      // '[source] | [source]'
 
       // '?>'
 
-      // '<[styling-name]:' ':>'
-
-      // '<>'
+      // '<[html-shorthand]:' ':>'
     });
 
     describe('Frostlining dialogue parsing', () => {
       // '<<<' '>>>' (start / end dialogue section)
 
-      // ';;' (dialogue breaks)
+      // ';;' (dialogue break)
+
+      // '<>' (glue)
 
       // '==' (knots)
 
-      // '*' '**' '***' (choices)
+      // '*' '**' ... (choices)
 
-      // '-' '--' '---' (gathers)
+      // '-' '--' ... (gathers)
 
-      // '-> <knot>' (diverts)
+      // '-> <knot-name>' (diverts)
 
-      // '* [ text ]' '** [ text ]' '*** [ text ]' (choice-only text)
+      // '* <source> [ <source> ]' '** <source> [ <source> ]' ... (choice-only text)
 
       // '* -> <knot>' '** -> <knot>' '*** -> <knot>' (fallback choice)
 
-      // '* <? condition ? <text>'
-      // '** <? condition ? <text>'
-      // '*** <? condition ? <text>'
+      // '* <? condition ? <source>'
+      // '** <? condition ? <source>'
+      // '*** <? condition ? <source>'
       // (conditional choice)
     });
 
@@ -158,18 +199,18 @@ describe('Parser', () => {
         let inputAndResult = [
           {
             input: "<a href='https://example.com'>test-link<\\a>",
-            expected: [ { type: 'text', value: "<a href='https://example.com'>test-link<\\a>" } ]
+            expected: [ { type: 'source', value: "<a href='https://example.com'>test-link<\\a>" } ]
           },
           {
             input: "<h1 className='title' id='main-title'>H1 Heading</h1>",
-            expected: [ { type: 'text', value: "<h1 className='title' id='main-title'>H1 Heading</h1>" } ]
+            expected: [ { type: 'source', value: "<h1 className='title' id='main-title'>H1 Heading</h1>" } ]
           },
           {
             input: "<p id='second-para'>This is the second paragraph. It includes <strong>bold</strong> and <em>emphasized</em> text.</p>\n<p data-test='paragraph-with-data'>This paragraph has a data attribute.</p>",
             expected: [
-              { type: 'text', value: "<p id='second-para'>This is the second paragraph. It includes <strong>bold</strong> and <em>emphasized</em> text.</p>" },
+              { type: 'source', value: "<p id='second-para'>This is the second paragraph. It includes <strong>bold</strong> and <em>emphasized</em> text.</p>" },
               { type: 'newline', value: "\n" },
-              { type: 'text', value: "<p data-test='paragraph-with-data'>This paragraph has a data attribute.</p>"}
+              { type: 'source', value: "<p data-test='paragraph-with-data'>This paragraph has a data attribute.</p>"}
             ]
           },
           {
@@ -188,19 +229,19 @@ describe('Parser', () => {
                 "            </div>\n" +
                 "            <p>Selector challenge: <code>.level-1 .level-3 .level-5 p</code></p>",
             expected: [
-              { type: 'text', value: "<h2>Deeply Nested Elements</h2>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<div class='level-1'>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<div class='level-2'>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<div class='level-3'>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<div class='level-4'>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<div class='level-5'>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<p class='deep-text'>This text is nested 5 levels deep</p>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "</div>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "</div>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "</div>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "</div>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "</div>" }, { type: 'newline', value: "\n" },
-              { type: 'text', value: "<p>Selector challenge: <code>.level-1 .level-3 .level-5 p</code></p>" },
+              { type: 'source', value: "<h2>Deeply Nested Elements</h2>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<div class='level-1'>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<div class='level-2'>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<div class='level-3'>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<div class='level-4'>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<div class='level-5'>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<p class='deep-text'>This text is nested 5 levels deep</p>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "</div>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "</div>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "</div>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "</div>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "</div>" }, { type: 'newline', value: "\n" },
+              { type: 'source', value: "<p>Selector challenge: <code>.level-1 .level-3 .level-5 p</code></p>" },
             ]
           }
         ]
