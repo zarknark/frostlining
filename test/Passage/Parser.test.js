@@ -188,7 +188,7 @@ describe('Parser', () => {
 
     describe('Frostlining parsing', () => {
       // '<|[var_name]'
-      it('should parse varname tags', () => {
+      it('should parse varname tags with words', () => {
         const parser = new Parser();
         let tokens = parser.tokenize("<|variable-name");
 
@@ -203,8 +203,12 @@ describe('Parser', () => {
         expect(tokens[2]).toStrictEqual({type: 'source', value: ' '});
         expect(tokens[3]).toStrictEqual({type: 'newline', value: '\n'});
         expect(tokens[4]).toStrictEqual({type: 'newline', value: '\n'});
+      })
 
-        tokens = parser.tokenize("<|\n\nvariable-name ");
+      it('should not parse words when newlines follow a varname tag', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("<|\n\nvariable-name ");
+
         expect(tokens.length).toBe(4);
         expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
         expect(tokens[1]).toStrictEqual({type: 'newline', value: '\n'});
@@ -219,14 +223,53 @@ describe('Parser', () => {
         expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name '});
       })
 
-      // Conditional tag: '<?[JS_expr]? [ source ] | [source] ?>'
-      // '<?[JS_expr]?[source]'
+      // Conditional tags
+      it('should parse basic conditional text', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize(
+            "<? hour === 'midnight' ? The clock struck twelve. ?>");
 
-      // '[source] | [source]'
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\' '})
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' The clock struck twelve. '})
+        expect(tokens[2]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
+      })
 
-      // '?>'
+      it('should parse conditional text with else statements', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize(
+            "<? hour === 'midnight' ? The clock struck twelve. | The clock ticked quietly. ?>");
 
-      // '<[html-shorthand]:' ':>'
+        expect(tokens.length).toBe(5);
+        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\' '})
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' The clock struck twelve. '})
+        expect(tokens[2]).toStrictEqual({type: 'pipe', value: '|'})
+        expect(tokens[3]).toStrictEqual({type: 'source', value: ' The clock ticked quietly. '})
+        expect(tokens[4]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
+      })
+
+      // HTML shorthand: '<:[html-shorthand]:' ':>'
+      it('should parse basic html shorthand', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("<:em: The clock struck twelve. :>");
+
+        expect(tokens.length).toBe(4);
+        expect(tokens[0]).toStrictEqual({type: 'fl-html-start', value: 'em'})
+        expect(tokens[1]).toStrictEqual({type: 'word', value: 'The'})
+        expect(tokens[2]).toStrictEqual({type: 'source', value: ' clock struck twelve. '})
+        expect(tokens[3]).toStrictEqual({type: 'fl-html-end', value: ':>'})
+
+        tokens = parser.tokenize("<:p.fl-hidden: The clock ticked quietly. :>");
+
+        expect(tokens.length).toBe(4);
+        expect(tokens[0]).toStrictEqual({type: 'fl-html-start', value: 'p.fl-hidden'})
+        expect(tokens[1]).toStrictEqual({type: 'word', value: 'The'})
+        expect(tokens[2]).toStrictEqual({type: 'source', value: ' clock ticked quietly. '})
+        expect(tokens[3]).toStrictEqual({type: 'fl-html-end', value: ':>'})
+      })
+
+      // Click-for-footnote: '<& [ source ] | footnote &>'
+
     });
 
     // DO THIS ONLY AFTER MAKING SURE BASIC PASSAGE FUNCTIONALITY WORKS.
