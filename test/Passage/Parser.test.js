@@ -17,7 +17,6 @@ describe('Parser', () => {
     it('should set default values if no arguments are provided', () => {
       const parser = new Parser();
       expect(parser.workingText).toBe('');
-      expect(parser.beginningOfLine).toBe(true);
       expect(parser.INLINE_WS).toEqual(/[ \t]/);
       expect(parser.NEWLINE_WS).toEqual(/[\r\n]/);
       expect(parser.SHORTHAND_CHARS).toEqual(/[A-Za-z-_.# ]/);
@@ -26,48 +25,26 @@ describe('Parser', () => {
 
   describe('tokenizer', () => {
     describe('whitespace parsing', () => {
-      it('should return no tokens if beginningOfLine=true and input only contains inline whitespace', () => {
+      it('should return no tokens if input only contains inline whitespace', () => {
         const parser = new Parser();
 
         let tokens = parser.tokenize("   ");
         expect(tokens.length).toBe(0);
 
-        parser.beginningOfLine = true;
         tokens = parser.tokenize("\t \t");
         expect(tokens.length).toBe(0);
       });
 
-      it('should return exact input if beginningOfLine=false, even if input only contains inline whitespace', () => {
-        const parser = new Parser();
-
-        let input = "   "
-        let tokens
-
-        parser.beginningOfLine = false;
-        tokens = parser.tokenize(input);
-        expect(tokens.length).toBe(1);
-        expect(tokens[0]).toStrictEqual({type: 'source', value: input})
-        parser.beginningOfLine = false;
-
-        input = "\t   \t"
-        parser.beginningOfLine = false;
-        tokens = parser.tokenize(input);
-        expect(tokens.length).toBe(1);
-        expect(tokens[0]).toStrictEqual({type: 'source', value: input})
-      });
-
-      it('should return all newlines, regardless of the value of beginningOfLine', () => {
+      it('should return all newlines', () => {
         const parser = new Parser();
 
         let input = "\n\n\n"
         let tokens
 
-        parser.beginningOfLine = true;
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(3);
         tokens.forEach( (token) => { expect(token).toStrictEqual({type: 'newline', value: '\n'}) })
 
-        parser.beginningOfLine = false;
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(3);
         tokens.forEach( (token) => { expect(token).toStrictEqual({type: 'newline', value: '\n'}) })
@@ -97,7 +74,7 @@ describe('Parser', () => {
         tokens = parser.tokenize("<% print('Hello World') %>");
         expect(tokens.length).toBe(3);
         expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' print(\'Hello World\') '});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'print(\'Hello World\')'});
         expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
 
       });
@@ -113,7 +90,7 @@ describe('Parser', () => {
         tokens = parser.tokenize("<%= story.helloWorld %>");
         expect(tokens.length).toBe(3);
         expect(tokens[0]).toStrictEqual({type: 'underscore-interp-start', value: '<%='});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' story.helloWorld '});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'story.helloWorld'});
         expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
       })
 
@@ -128,9 +105,9 @@ describe('Parser', () => {
         tokens = parser.tokenize("<%- <br>\n story.helloWorld <br> \n%>");
         expect(tokens.length).toBe(6);
         expect(tokens[0]).toStrictEqual({type: 'underscore-interp-esc-start', value: '<%-'});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' <br>'});
+        expect(tokens[1]).toStrictEqual({type: 'source', value: '<br>'});
         expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'story.helloWorld <br> '});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'story.helloWorld <br>'});
         expect(tokens[4]).toStrictEqual({type: 'newline', value: '\n'});
         expect(tokens[5]).toStrictEqual({type: 'underscore-end', value: '%>'});
       })
@@ -181,7 +158,6 @@ describe('Parser', () => {
         expect(tokens[2]).toStrictEqual({type: 'rev-arrow', value: '<-'});
         expect(tokens[3]).toStrictEqual({type: 'source', value: 'source'});
         expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
-
       })
     });
 
@@ -197,12 +173,11 @@ describe('Parser', () => {
         expect(tokens[1]).toStrictEqual({type: 'word', value: 'variable-name'});
 
         tokens = parser.tokenize("<| variable-name \n\n");
-        expect(tokens.length).toBe(5);
+        expect(tokens.length).toBe(4);
         expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
         expect(tokens[1]).toStrictEqual({type: 'word', value: 'variable-name'});
-        expect(tokens[2]).toStrictEqual({type: 'source', value: ' '});
+        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
         expect(tokens[3]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[4]).toStrictEqual({type: 'newline', value: '\n'});
       })
 
       it('should not parse words when newlines follow a varname tag', () => {
@@ -213,14 +188,13 @@ describe('Parser', () => {
         expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
         expect(tokens[1]).toStrictEqual({type: 'newline', value: '\n'});
         expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name '});
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name'});
 
         tokens = parser.tokenize("<| \nvariable-name ");
-        expect(tokens.length).toBe(4);
+        expect(tokens.length).toBe(3);
         expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' '});
-        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name '});
+        expect(tokens[1]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[2]).toStrictEqual({type: 'source', value: 'variable-name'});
       })
 
       // Conditional tags
@@ -230,8 +204,8 @@ describe('Parser', () => {
             "<? hour === 'midnight' ? The clock struck twelve. ?>");
 
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\' '})
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' The clock struck twelve. '})
+        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\''})
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'The clock struck twelve.'})
         expect(tokens[2]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
       })
 
@@ -241,10 +215,10 @@ describe('Parser', () => {
             "<? hour === 'midnight' ? The clock struck twelve. | The clock ticked quietly. ?>");
 
         expect(tokens.length).toBe(5);
-        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\' '})
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' The clock struck twelve. '})
+        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\''})
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'The clock struck twelve.'})
         expect(tokens[2]).toStrictEqual({type: 'pipe', value: '|'})
-        expect(tokens[3]).toStrictEqual({type: 'source', value: ' The clock ticked quietly. '})
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'The clock ticked quietly.'})
         expect(tokens[4]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
       })
 
@@ -256,7 +230,7 @@ describe('Parser', () => {
         expect(tokens.length).toBe(4);
         expect(tokens[0]).toStrictEqual({type: 'fl-html-start', value: 'em'})
         expect(tokens[1]).toStrictEqual({type: 'word', value: 'The'})
-        expect(tokens[2]).toStrictEqual({type: 'source', value: ' clock struck twelve. '})
+        expect(tokens[2]).toStrictEqual({type: 'source', value: 'clock struck twelve.'})
         expect(tokens[3]).toStrictEqual({type: 'fl-html-end', value: ':>'})
 
         tokens = parser.tokenize("<:p.fl-hidden: The clock ticked quietly. :>");
@@ -264,7 +238,7 @@ describe('Parser', () => {
         expect(tokens.length).toBe(4);
         expect(tokens[0]).toStrictEqual({type: 'fl-html-start', value: 'p.fl-hidden'})
         expect(tokens[1]).toStrictEqual({type: 'word', value: 'The'})
-        expect(tokens[2]).toStrictEqual({type: 'source', value: ' clock ticked quietly. '})
+        expect(tokens[2]).toStrictEqual({type: 'source', value: 'clock ticked quietly.'})
         expect(tokens[3]).toStrictEqual({type: 'fl-html-end', value: ':>'})
       })
 
@@ -275,11 +249,11 @@ describe('Parser', () => {
             "He muttered, \"I'm from <& England | England: a foreign country far across the sea. &>.\"");
 
         expect(tokens.length).toBe(7);
-        expect(tokens[0]).toStrictEqual({type: 'source', value: 'He muttered, "I\'m from '});
+        expect(tokens[0]).toStrictEqual({type: 'source', value: 'He muttered, "I\'m from'});
         expect(tokens[1]).toStrictEqual({type: 'fl-footnote-start', value: '<&'});
-        expect(tokens[2]).toStrictEqual({type: 'source', value: ' England '});
+        expect(tokens[2]).toStrictEqual({type: 'source', value: 'England'});
         expect(tokens[3]).toStrictEqual({type: 'pipe', value: '|'});
-        expect(tokens[4]).toStrictEqual({type: 'source', value: ' England: a foreign country far across the sea. '});
+        expect(tokens[4]).toStrictEqual({type: 'source', value: 'England: a foreign country far across the sea.'});
         expect(tokens[5]).toStrictEqual({type: 'fl-footnote-end', value: '&>'});
         expect(tokens[6]).toStrictEqual({type: 'source', value: '."'});
       })
@@ -366,7 +340,6 @@ describe('Parser', () => {
           }
         ]
         inputAndResult.forEach((item) => {
-          parser.beginningOfLine = true
           let tokens = parser.tokenize(item.input)
           expect(tokens).toStrictEqual(item.expected)
         });
@@ -384,22 +357,73 @@ describe('Parser', () => {
             The entrance from the street is to the [[north->Outside]], and there are doorways [[south->Bar]] and [[west->Cloakroom]]."`
 
         let tokens = parser.tokenize(input);
-        expect(tokens.length).toBe(40);
-        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: '_previousRoom === \'Outside\' '})
-        expect(tokens[1]).toStrictEqual({type: 'source', value: ' Shaking the rain from your '})
+        expect(tokens.length).toBe(39);
+        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: '_previousRoom === \'Outside\''})
+        expect(tokens[1]).toStrictEqual({type: 'source', value: 'Shaking the rain from your'})
         expect(tokens[2]).toStrictEqual({type: 'tw-link-start', value: '[['})
         expect(tokens[3]).toStrictEqual({type: 'source', value: 'cloak'})
         expect(tokens[4]).toStrictEqual({type: 'arrow', value: '->'})
         expect(tokens[5]).toStrictEqual({type: 'source', value: 'Cloak'})
         expect(tokens[6]).toStrictEqual({type: 'tw-link-end', value: ']]'})
-        expect(tokens[7]).toStrictEqual({type: 'source', value: ', you step gratefully inside. '})
+        expect(tokens[7]).toStrictEqual({type: 'source', value: ', you step gratefully inside.'})
         expect(tokens[8]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
 
         expect(tokens).toContainEqual({type: 'fl-footnote-start', value: '<&'})
-        expect(tokens).toContainEqual({type: 'source', value: ' spacious hall '})
-        expect(tokens).toContainEqual({type: 'source', value: ' It is splendidly decorated in red and gold, with glittering chandeliers overhead '})
+        expect(tokens).toContainEqual({type: 'source', value: 'spacious hall'})
+        expect(tokens).toContainEqual({type: 'source', value: 'It is splendidly decorated in red and gold, with glittering chandeliers overhead'})
         expect(tokens).toContainEqual({type: 'fl-footnote-end', value: '&>'})
       })
     })
   });
+
+  describe('ast-creation', () => {
+    describe('valid input tests', () => {
+      it("should handle basic underscore templating", () => {
+        const parser = new Parser();
+
+        let input = '<% if (s.hour === "midnight") { %>';
+        let tokens = parser.tokenize(input);
+        let ast = parser.toAst(tokens);
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {
+              type: 'UnderscoreTemplate',
+              children: [
+                {
+                  type: 'Source',
+                  value: 'if (s.hour === "midnight") {'
+                }]
+            }]
+        });
+
+        input = 'Hello, <%= getName() %>';
+        tokens = parser.tokenize(input);
+        ast = parser.toAst(tokens);
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {
+              type: 'Source',
+              value: 'Hello,'
+            },
+            {
+              type: 'UnderscoreTemplate',
+              children: [
+                {
+                  type: 'Source',
+                  value: 'getName()'
+                }
+              ]
+            }]
+        });
+      })
+    })
+
+    describe('valid input tests', () => {
+
+    })
+  })
 });
