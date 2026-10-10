@@ -540,7 +540,7 @@ describe('Parser', () => {
         const parser = new Parser()
 
         let input = `
-        <:em:
+        <:.chapter-start#start.text:
           In my younger and more vulnerable years my father gave me some advice
           that I’ve been turning over in my mind ever since.
         :>
@@ -556,9 +556,9 @@ describe('Parser', () => {
             {type: 'Newline', value: '\n'},
             {
               type: 'FrostliningHtmlShorthand',
-              tag: 'em',
-              id: '',
-              classes: [],
+              tag: 'p',
+              id: 'start',
+              classes: ['chapter-start', 'text'],
               children: [
                 {type: 'Newline', value: '\n'},
                 {type: 'Source', value: 'In my younger and more vulnerable years my father gave me some advice'},
@@ -597,7 +597,56 @@ describe('Parser', () => {
         <:: You never knew that it was <:em:Babylon / 'Til it was gone :>
         `
         ast = parser.toAst(parser.tokenize(input));
-        expect(ast).toStrictEqual({});
+        expect(ast.body.length).toBe(17);
+        expect(ast.body[0]).toStrictEqual({type: 'Newline', value: '\n'});
+        expect(ast.body[1]).toStrictEqual({
+          type: 'FrostliningHtmlShorthand',
+          tag: 'p',
+          id: '',
+          classes: [],
+          children: [{type: 'Source', value: 'Because she loved you so'}]
+        });
+        expect(ast.body[3]).toStrictEqual({
+          type: 'FrostliningHtmlShorthand',
+          tag: 'p',
+          id: '',
+          classes: [],
+          children: [
+            {type: 'Source', value: 'Pretty as a picture that you'},
+            {
+              type: 'FrostliningHtmlShorthand',
+              tag: 'em',
+              id: '',
+              classes: [],
+              children: [{type: 'Source', value: 'didn\'t post'}]
+            }
+          ]
+        });
+        expect(ast.body[7]).toStrictEqual({
+          type: 'FrostliningHtmlShorthand',
+          tag: 'p',
+          id: '',
+          classes: [],
+          children: [
+            {type: 'Source', value: 'Never'},
+            {
+              type: 'FrostliningHtmlShorthand',
+              tag: 'em',
+              id: '',
+              classes: [],
+              children: [{type: 'Source', value: 'official'}]
+            },
+            {type: 'Source', value: '/ You mention you\'re'},
+            {
+              type: 'FrostliningHtmlShorthand',
+              tag: 'em',
+              id: '',
+              classes: [],
+              children: [{type: 'Source', value: 'single'}]
+            },
+            {type: 'Source', value: 'to the girls at the bar'}
+          ]
+        });
       });
     })
 
