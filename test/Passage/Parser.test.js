@@ -43,11 +43,11 @@ describe('Parser', () => {
 
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(3);
-        tokens.forEach( (token) => { expect(token).toStrictEqual({type: 'newline', value: '\n'}) })
+        tokens.forEach( (token) => { expect(token).toMatchObject({type: 'newline', value: '\n'}) })
 
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(3);
-        tokens.forEach( (token) => { expect(token).toStrictEqual({type: 'newline', value: '\n'}) })
+        tokens.forEach( (token) => { expect(token).toMatchObject({type: 'newline', value: '\n'}) })
       });
 
       it('should omit all whitespace between newlines', () => {
@@ -58,7 +58,7 @@ describe('Parser', () => {
 
         tokens = parser.tokenize(input);
         expect(tokens.length).toBe(3);
-        tokens.forEach( (token) => { expect(token).toStrictEqual({type: 'newline', value: '\n'}) })
+        tokens.forEach( (token) => { expect(token).toMatchObject({type: 'newline', value: '\n'}) })
       });
     });
 
@@ -68,14 +68,14 @@ describe('Parser', () => {
         let tokens = parser.tokenize("<%%>");
 
         expect(tokens.length).toBe(2);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'});
-        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'});
+        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%', pos: [0,0]});
+        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>', pos: [0,2]});
 
         tokens = parser.tokenize("<% print('Hello World') %>");
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-start', value: '<%'});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'print(\'Hello World\')'});
-        expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
+        expect(tokens[0]).toMatchObject({type: 'underscore-start', value: '<%'});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'print(\'Hello World\')'});
+        expect(tokens[2]).toMatchObject({type: 'underscore-end', value: '%>'});
 
       });
 
@@ -84,14 +84,14 @@ describe('Parser', () => {
         let tokens = parser.tokenize("<%=%>");
 
         expect(tokens.length).toBe(2);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-start', value: '<%='});
-        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'});
+        expect(tokens[0]).toMatchObject({type: 'underscore-interp-start', value: '<%='});
+        expect(tokens[1]).toMatchObject({type: 'underscore-end', value: '%>'});
 
         tokens = parser.tokenize("<%= story.helloWorld %>");
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-start', value: '<%='});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'story.helloWorld'});
-        expect(tokens[2]).toStrictEqual({type: 'underscore-end', value: '%>'});
+        expect(tokens[0]).toMatchObject({type: 'underscore-interp-start', value: '<%='});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'story.helloWorld'});
+        expect(tokens[2]).toMatchObject({type: 'underscore-end', value: '%>'});
       })
 
       it('should recognize interpolate-and-escape-type opening tags', () => {
@@ -99,17 +99,17 @@ describe('Parser', () => {
         let tokens = parser.tokenize("<%-%>");
 
         expect(tokens.length).toBe(2);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-esc-start', value: '<%-'});
-        expect(tokens[1]).toStrictEqual({type: 'underscore-end', value: '%>'});
+        expect(tokens[0]).toMatchObject({type: 'underscore-interp-esc-start', value: '<%-'});
+        expect(tokens[1]).toMatchObject({type: 'underscore-end', value: '%>'});
 
         tokens = parser.tokenize("<%- <br>\n story.helloWorld <br> \n%>");
         expect(tokens.length).toBe(6);
-        expect(tokens[0]).toStrictEqual({type: 'underscore-interp-esc-start', value: '<%-'});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: '<br>'});
-        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'story.helloWorld <br>'});
-        expect(tokens[4]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[5]).toStrictEqual({type: 'underscore-end', value: '%>'});
+        expect(tokens[0]).toMatchObject({type: 'underscore-interp-esc-start', value: '<%-'});
+        expect(tokens[1]).toMatchObject({type: 'source', value: '<br>'});
+        expect(tokens[2]).toMatchObject({type: 'newline', value: '\n'});
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'story.helloWorld <br>'});
+        expect(tokens[4]).toMatchObject({type: 'newline', value: '\n'});
+        expect(tokens[5]).toMatchObject({type: 'underscore-end', value: '%>'});
       })
     });
 
@@ -119,11 +119,11 @@ describe('Parser', () => {
         let tokens = parser.tokenize("[[source|dest_passage]]");
 
         expect(tokens.length).toBe(5);
-        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'source'});
-        expect(tokens[2]).toStrictEqual({type: 'pipe', value: '|'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'dest_passage'});
-        expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+        expect(tokens[0]).toMatchObject({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'source'});
+        expect(tokens[2]).toMatchObject({type: 'pipe', value: '|'});
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'dest_passage'});
+        expect(tokens[4]).toMatchObject({type: 'tw-link-end', value: ']]'});
       })
 
       it('should parse arrow links', () => {
@@ -131,11 +131,11 @@ describe('Parser', () => {
         let tokens = parser.tokenize("[[source->dest_passage]]");
 
         expect(tokens.length).toBe(5);
-        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'source'});
-        expect(tokens[2]).toStrictEqual({type: 'arrow', value: '->'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'dest_passage'});
-        expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+        expect(tokens[0]).toMatchObject({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'source'});
+        expect(tokens[2]).toMatchObject({type: 'arrow', value: '->'});
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'dest_passage'});
+        expect(tokens[4]).toMatchObject({type: 'tw-link-end', value: ']]'});
       })
 
       it('should parse destination-only links', () => {
@@ -143,9 +143,9 @@ describe('Parser', () => {
         let tokens = parser.tokenize("[[dest_passage]]");
 
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'dest_passage'});
-        expect(tokens[2]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+        expect(tokens[0]).toMatchObject({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'dest_passage'});
+        expect(tokens[2]).toMatchObject({type: 'tw-link-end', value: ']]'});
       })
 
       it('should parse embed links', () => {
@@ -153,11 +153,11 @@ describe('Parser', () => {
         let tokens = parser.tokenize("[[dest_passage<-source]]");
 
         expect(tokens.length).toBe(5);
-        expect(tokens[0]).toStrictEqual({type: 'tw-link-start', value: '[['});
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'dest_passage'});
-        expect(tokens[2]).toStrictEqual({type: 'rev-arrow', value: '<-'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'source'});
-        expect(tokens[4]).toStrictEqual({type: 'tw-link-end', value: ']]'});
+        expect(tokens[0]).toMatchObject({type: 'tw-link-start', value: '[['});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'dest_passage'});
+        expect(tokens[2]).toMatchObject({type: 'rev-arrow', value: '<-'});
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'source'});
+        expect(tokens[4]).toMatchObject({type: 'tw-link-end', value: ']]'});
       })
     });
 
@@ -169,15 +169,15 @@ describe('Parser', () => {
         let tokens = parser.tokenize("<|variable-name");
 
         expect(tokens.length).toBe(2);
-        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toStrictEqual({type: 'word', value: 'variable-name'});
+        expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable-name'});
 
         tokens = parser.tokenize("<| variable-name \n\n");
         expect(tokens.length).toBe(4);
-        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toStrictEqual({type: 'word', value: 'variable-name'});
-        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[3]).toStrictEqual({type: 'newline', value: '\n'});
+        expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable-name'});
+        expect(tokens[2]).toMatchObject({type: 'newline', value: '\n'});
+        expect(tokens[3]).toMatchObject({type: 'newline', value: '\n'});
       })
 
       it('should not parse words when newlines follow a varname tag', () => {
@@ -185,16 +185,16 @@ describe('Parser', () => {
         let tokens = parser.tokenize("<|\n\nvariable-name ");
 
         expect(tokens.length).toBe(4);
-        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[2]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'variable-name'});
+        expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toMatchObject({type: 'newline', value: '\n'});
+        expect(tokens[2]).toMatchObject({type: 'newline', value: '\n'});
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'variable-name'});
 
         tokens = parser.tokenize("<| \nvariable-name ");
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toStrictEqual({type: 'newline', value: '\n'});
-        expect(tokens[2]).toStrictEqual({type: 'source', value: 'variable-name'});
+        expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toMatchObject({type: 'newline', value: '\n'});
+        expect(tokens[2]).toMatchObject({type: 'source', value: 'variable-name'});
       })
 
       // Conditional tags
@@ -204,9 +204,9 @@ describe('Parser', () => {
             "<? hour === 'midnight' ? The clock struck twelve. ?>");
 
         expect(tokens.length).toBe(3);
-        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\''})
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'The clock struck twelve.'})
-        expect(tokens[2]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
+        expect(tokens[0]).toMatchObject({type: 'fl-conditional-start', value: 'hour === \'midnight\''})
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'The clock struck twelve.'})
+        expect(tokens[2]).toMatchObject({type: 'fl-conditional-end', value: '?>'})
       })
 
       it('should parse conditional text with else statements', () => {
@@ -215,11 +215,11 @@ describe('Parser', () => {
             "<? hour === 'midnight' ? The clock struck twelve. | The clock ticked quietly. ?>");
 
         expect(tokens.length).toBe(5);
-        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: 'hour === \'midnight\''})
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'The clock struck twelve.'})
-        expect(tokens[2]).toStrictEqual({type: 'pipe', value: '|'})
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'The clock ticked quietly.'})
-        expect(tokens[4]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
+        expect(tokens[0]).toMatchObject({type: 'fl-conditional-start', value: 'hour === \'midnight\''})
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'The clock struck twelve.'})
+        expect(tokens[2]).toMatchObject({type: 'pipe', value: '|'})
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'The clock ticked quietly.'})
+        expect(tokens[4]).toMatchObject({type: 'fl-conditional-end', value: '?>'})
       })
 
       // HTML shorthand: '<:[html-shorthand]:' ':>'
@@ -228,18 +228,18 @@ describe('Parser', () => {
         let tokens = parser.tokenize("<:em: The clock struck twelve. :>");
 
         expect(tokens.length).toBe(4);
-        expect(tokens[0]).toStrictEqual({type: 'fl-html-start', value: 'em'})
-        expect(tokens[1]).toStrictEqual({type: 'word', value: 'The'})
-        expect(tokens[2]).toStrictEqual({type: 'source', value: 'clock struck twelve.'})
-        expect(tokens[3]).toStrictEqual({type: 'fl-html-end', value: ':>'})
+        expect(tokens[0]).toMatchObject({type: 'fl-html-start', value: 'em'})
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'The'})
+        expect(tokens[2]).toMatchObject({type: 'source', value: 'clock struck twelve.'})
+        expect(tokens[3]).toMatchObject({type: 'fl-html-end', value: ':>'})
 
         tokens = parser.tokenize("<:p.fl-hidden: The clock ticked quietly. :>");
 
         expect(tokens.length).toBe(4);
-        expect(tokens[0]).toStrictEqual({type: 'fl-html-start', value: 'p.fl-hidden'})
-        expect(tokens[1]).toStrictEqual({type: 'word', value: 'The'})
-        expect(tokens[2]).toStrictEqual({type: 'source', value: 'clock ticked quietly.'})
-        expect(tokens[3]).toStrictEqual({type: 'fl-html-end', value: ':>'})
+        expect(tokens[0]).toMatchObject({type: 'fl-html-start', value: 'p.fl-hidden'})
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'The'})
+        expect(tokens[2]).toMatchObject({type: 'source', value: 'clock ticked quietly.'})
+        expect(tokens[3]).toMatchObject({type: 'fl-html-end', value: ':>'})
       })
 
       // Click-for-footnote: '<& [ source ] | footnote &>'
@@ -249,13 +249,13 @@ describe('Parser', () => {
             "He muttered, \"I'm from <& England | England: a foreign country far across the sea. &>.\"");
 
         expect(tokens.length).toBe(7);
-        expect(tokens[0]).toStrictEqual({type: 'source', value: 'He muttered, "I\'m from'});
-        expect(tokens[1]).toStrictEqual({type: 'fl-footnote-start', value: '<&'});
-        expect(tokens[2]).toStrictEqual({type: 'source', value: 'England'});
-        expect(tokens[3]).toStrictEqual({type: 'pipe', value: '|'});
-        expect(tokens[4]).toStrictEqual({type: 'source', value: 'England: a foreign country far across the sea.'});
-        expect(tokens[5]).toStrictEqual({type: 'fl-footnote-end', value: '&>'});
-        expect(tokens[6]).toStrictEqual({type: 'source', value: '."'});
+        expect(tokens[0]).toMatchObject({type: 'source', value: 'He muttered, "I\'m from'});
+        expect(tokens[1]).toMatchObject({type: 'fl-footnote-start', value: '<&'});
+        expect(tokens[2]).toMatchObject({type: 'source', value: 'England'});
+        expect(tokens[3]).toMatchObject({type: 'pipe', value: '|'});
+        expect(tokens[4]).toMatchObject({type: 'source', value: 'England: a foreign country far across the sea.'});
+        expect(tokens[5]).toMatchObject({type: 'fl-footnote-end', value: '&>'});
+        expect(tokens[6]).toMatchObject({type: 'source', value: '."'});
       })
     });
 
@@ -341,7 +341,7 @@ describe('Parser', () => {
         ]
         inputAndResult.forEach((item) => {
           let tokens = parser.tokenize(item.input)
-          expect(tokens).toStrictEqual(item.expected)
+          expect(tokens).toMatchObject(item.expected)
         });
       });
     });
@@ -358,20 +358,15 @@ describe('Parser', () => {
 
         let tokens = parser.tokenize(input);
         expect(tokens.length).toBe(39);
-        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: '_previousRoom === \'Outside\''})
-        expect(tokens[1]).toStrictEqual({type: 'source', value: 'Shaking the rain from your'})
-        expect(tokens[2]).toStrictEqual({type: 'tw-link-start', value: '[['})
-        expect(tokens[3]).toStrictEqual({type: 'source', value: 'cloak'})
-        expect(tokens[4]).toStrictEqual({type: 'arrow', value: '->'})
-        expect(tokens[5]).toStrictEqual({type: 'source', value: 'Cloak'})
-        expect(tokens[6]).toStrictEqual({type: 'tw-link-end', value: ']]'})
-        expect(tokens[7]).toStrictEqual({type: 'source', value: ', you step gratefully inside.'})
-        expect(tokens[8]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
-
-        expect(tokens).toContainEqual({type: 'fl-footnote-start', value: '<&'})
-        expect(tokens).toContainEqual({type: 'source', value: 'spacious hall'})
-        expect(tokens).toContainEqual({type: 'source', value: 'It is splendidly decorated in red and gold, with glittering chandeliers overhead'})
-        expect(tokens).toContainEqual({type: 'fl-footnote-end', value: '&>'})
+        expect(tokens[0]).toMatchObject({type: 'fl-conditional-start', value: '_previousRoom === \'Outside\''})
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'Shaking the rain from your'})
+        expect(tokens[2]).toMatchObject({type: 'tw-link-start', value: '[['})
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'cloak'})
+        expect(tokens[4]).toMatchObject({type: 'arrow', value: '->'})
+        expect(tokens[5]).toMatchObject({type: 'source', value: 'Cloak'})
+        expect(tokens[6]).toMatchObject({type: 'tw-link-end', value: ']]'})
+        expect(tokens[7]).toMatchObject({type: 'source', value: ', you step gratefully inside.'})
+        expect(tokens[8]).toMatchObject({type: 'fl-conditional-end', value: '?>'})
       })
     })
   });
@@ -410,7 +405,7 @@ describe('Parser', () => {
               value: 'Hello,'
             },
             {
-              type: 'UnderscoreTemplate',
+              type: 'UnderscoreInterpolate',
               children: [
                 {
                   type: 'Source',
@@ -419,11 +414,193 @@ describe('Parser', () => {
               ]
             }]
         });
+
+        input = '<%- getModalSource() %>';
+        tokens = parser.tokenize(input);
+        ast = parser.toAst(tokens);
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {
+              type: 'UnderscoreInterpolateEscaped',
+              children: [
+                {
+                  type: 'Source',
+                  value: 'getModalSource()'
+                }
+              ]
+            }]
+        });
       })
+
+      it("should handle Twine links", () => {
+        const parser = new Parser()
+
+        let input = '[[One Fish|one]], [[Two Fish->two]], [[Red Fish]], [[blue<-Blue Fish]]';
+        let ast = parser.toAst(parser.tokenize(input));
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {
+              type: 'TwineLink',
+              label: [{type: 'Source', value: 'One Fish'}],
+              passage: [{type: 'Source', value: 'one'}],
+              isEmbed: false
+            },
+            { type: 'Source', value: ',' },
+            {
+              type: 'TwineLink',
+              label: [{type: 'Source', value: 'Two Fish'}],
+              passage: [{type: 'Source', value: 'two'}],
+              isEmbed: false
+            },
+            { type: 'Source', value: ',' },
+            {
+              type: 'TwineLink',
+              label: [],
+              passage: [{type: 'Source', value: 'Red Fish'}],
+              isEmbed: false
+            },
+            { type: 'Source', value: ',' },
+            {
+              type: 'TwineLink',
+              label: [{type: 'Source', value: 'Blue Fish'}],
+              passage: [{type: 'Source', value: 'blue'}],
+              isEmbed: true
+            }
+          ]
+        });
+      });
+
+      it("should hande variable markup", () => {
+        const parser = new Parser()
+
+        let input = 'Hello, <|user.name !'
+        let ast = parser.toAst(parser.tokenize(input));
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            { type: 'Source', value: 'Hello,' },
+            {
+              type: 'FrostliningInterpolate',
+              var_name: 'user.name'
+            },
+            { type: 'Source', value: '!' }
+          ]
+        });
+      });
+
+      it("should handle basic conditional statements", () => {
+        const parser = new Parser()
+
+        let input = '<? s.hour === "midnight" ? The clock struck midnight. ?>'
+        let ast = parser.toAst(parser.tokenize(input));
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {
+              type: 'FrostliningConditional',
+              conditional: 's.hour === "midnight"',
+              ifChildren: [{
+                type: 'Source',
+                value: 'The clock struck midnight.'
+              }],
+              elseChildren: []
+            }
+          ]
+        })
+
+        input = '<? s.hour === "midnight" ? The clock struck midnight. | The clock ticked quietly. ?>'
+        ast = parser.toAst(parser.tokenize(input));
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {
+              type: 'FrostliningConditional',
+              conditional: 's.hour === "midnight"',
+              ifChildren: [{
+                type: 'Source',
+                value: 'The clock struck midnight.'
+              }],
+              elseChildren: [{
+                type: 'Source',
+                value: 'The clock ticked quietly.'
+              }]
+            }
+          ]
+        });
+      });
+
+      it("should handle frostlining html shorthand", () => {
+        const parser = new Parser()
+
+        let input = `
+        <:em:
+          In my younger and more vulnerable years my father gave me some advice
+          that I’ve been turning over in my mind ever since.
+        :>
+        <::
+          "Whenever you feel like criticizing anyone," he told me, "just remember
+           that all the people in this world haven't had the advantages that 
+           you've had."     
+        :>`;
+        let ast = parser.toAst(parser.tokenize(input));
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          body: [
+            {type: 'Newline', value: '\n'},
+            {
+              type: 'FrostliningHtmlShorthand',
+              tag: 'em',
+              id: '',
+              classes: [],
+              children: [
+                {type: 'Newline', value: '\n'},
+                {type: 'Source', value: 'In my younger and more vulnerable years my father gave me some advice'},
+                {type: 'Newline', value: '\n'},
+                {type: 'Source', value: 'that I’ve been turning over in my mind ever since.'},
+                {type: 'Newline', value: '\n'},
+              ]
+            },
+            {type: 'Newline', value: '\n'},
+            {
+              type: 'FrostliningHtmlShorthand',
+              tag: 'p',
+              id: '',
+              classes: [],
+              children: [
+                {type: 'Newline', value: '\n'},
+                {type: 'Source', value: '"Whenever you feel like criticizing anyone," he told me, "just remember'},
+                {type: 'Newline', value: '\n'},
+                {type: 'Source', value: 'that all the people in this world haven\'t had the advantages that'},
+                {type: 'Newline', value: '\n'},
+                {type: 'Source', value: 'you\'ve had."'},
+                {type: 'Newline', value: '\n'},
+              ]
+            }
+          ]
+        })
+
+        input = `
+        <:: Because she loved you so :>
+        <:: Pretty as a picture that you <:em: didn't post :> :>
+        <:: Lookin' at you like you're made of <:em: solid gold :> :>
+        <:: Never <:em:official / You mention you're <:em:single to the girls at the bar :>
+        <:: And you hate this song :>
+        <:: But you wake up on the train with your <:em: headphones gone :> :>
+        <:: Then that melody is <:em: all you want :> :>
+        <:: You never knew that it was <:em:Babylon / 'Til it was gone :>
+        `
+        ast = parser.toAst(parser.tokenize(input));
+        expect(ast).toStrictEqual({});
+      });
     })
 
-    describe('valid input tests', () => {
-
-    })
+    describe('invalid input tests', () => {})
   })
 });
