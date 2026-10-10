@@ -269,7 +269,20 @@ describe('Parser', () => {
       })
 
       // Click-for-footnote: '<& [ source ] | footnote &>'
+      it('parses footnotes correctly', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize(
+            "He muttered, \"I'm from <& England | England: a foreign country far across the sea. &>.\"");
 
+        expect(tokens.length).toBe(7);
+        expect(tokens[0]).toStrictEqual({type: 'source', value: 'He muttered, "I\'m from '});
+        expect(tokens[1]).toStrictEqual({type: 'fl-footnote-start', value: '<&'});
+        expect(tokens[2]).toStrictEqual({type: 'source', value: ' England '});
+        expect(tokens[3]).toStrictEqual({type: 'pipe', value: '|'});
+        expect(tokens[4]).toStrictEqual({type: 'source', value: ' England: a foreign country far across the sea. '});
+        expect(tokens[5]).toStrictEqual({type: 'fl-footnote-end', value: '&>'});
+        expect(tokens[6]).toStrictEqual({type: 'source', value: '."'});
+      })
     });
 
     // DO THIS ONLY AFTER MAKING SURE BASIC PASSAGE FUNCTIONALITY WORKS.
