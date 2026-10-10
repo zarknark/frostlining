@@ -372,5 +372,34 @@ describe('Parser', () => {
         });
       });
     });
+
+    describe('complex parsing tests', () => {
+      it('should correctly parse a passage with multiple different types of tags, some of them nested.', () => {
+        const parser = new Parser();
+        const input =
+            `<? _previousRoom === 'Outside' ? Shaking the rain from your [[cloak->Cloak]], you step gratefully inside. ?> 
+            
+            You are standing in a <& spacious hall | It is splendidly decorated in red and gold, with glittering chandeliers overhead &>.
+            
+            The entrance from the street is to the [[north->Outside]], and there are doorways [[south->Bar]] and [[west->Cloakroom]]."`
+
+        let tokens = parser.tokenize(input);
+        expect(tokens.length).toBe(40);
+        expect(tokens[0]).toStrictEqual({type: 'fl-conditional-start', value: '_previousRoom === \'Outside\' '})
+        expect(tokens[1]).toStrictEqual({type: 'source', value: ' Shaking the rain from your '})
+        expect(tokens[2]).toStrictEqual({type: 'tw-link-start', value: '[['})
+        expect(tokens[3]).toStrictEqual({type: 'source', value: 'cloak'})
+        expect(tokens[4]).toStrictEqual({type: 'arrow', value: '->'})
+        expect(tokens[5]).toStrictEqual({type: 'source', value: 'Cloak'})
+        expect(tokens[6]).toStrictEqual({type: 'tw-link-end', value: ']]'})
+        expect(tokens[7]).toStrictEqual({type: 'source', value: ', you step gratefully inside. '})
+        expect(tokens[8]).toStrictEqual({type: 'fl-conditional-end', value: '?>'})
+
+        expect(tokens).toContainEqual({type: 'fl-footnote-start', value: '<&'})
+        expect(tokens).toContainEqual({type: 'source', value: ' spacious hall '})
+        expect(tokens).toContainEqual({type: 'source', value: ' It is splendidly decorated in red and gold, with glittering chandeliers overhead '})
+        expect(tokens).toContainEqual({type: 'fl-footnote-end', value: '&>'})
+      })
+    })
   });
 });
