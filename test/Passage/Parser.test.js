@@ -259,10 +259,61 @@ describe('Parser', () => {
     // DO THIS ONLY AFTER MAKING SURE BASIC PASSAGE FUNCTIONALITY WORKS.
     describe('Frostlining dialogue parsing', () => {
       // '<<<' '>>>' (start / end dialogue section)
+      it("should recognize dialogue opening and closing tags", () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize('<<< abc >>>');
+
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toMatchObject({type: 'fl-dialogue-start', value: '<<<'});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'abc'});
+        expect(tokens[2]).toMatchObject({type: 'fl-dialogue-end', value: '>>>'});
+
+      });
 
       // ';;' (dialogue break)
+      it("should recognize dialogue breaks", () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize(
+            "<<< " +
+            "Waitin' for the soldier to come back again ;; " +
+            "Nevermore to be alone ;; " +
+            "When the letter said, \"A soldier's comin' home\" " +
+            ">>>");
+
+        expect(tokens.length).toBe(7);
+        expect(tokens[0]).toMatchObject({type: 'fl-dialogue-start', value: '<<<'});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'Waitin\' for the soldier to come back again'});
+        expect(tokens[2]).toMatchObject({type: 'fl-dialogue-break', value: ';;'});
+        expect(tokens[3]).toMatchObject({type: 'source', value: 'Nevermore to be alone'});
+        expect(tokens[4]).toMatchObject({type: 'fl-dialogue-break', value: ';;'});
+        expect(tokens[5]).toMatchObject({type: 'source', value: 'When the letter said, "A soldier\'s comin\' home"'});
+        expect(tokens[6]).toMatchObject({type: 'fl-dialogue-end', value: '>>>'});
+
+      });
 
       // '<>' (glue)
+      it("should recognize glue tags", () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize('Hello, <> World!');
+
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toMatchObject({type: 'source', value: 'Hello,'});
+        expect(tokens[1]).toMatchObject({type: 'fl-glue', value: '<>'});
+        expect(tokens[2]).toMatchObject({type: 'source', value: 'World!'});
+
+      });
+
+      // Recognize bracketed text
+      it("should recognize bracketed text", () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize('[ Divine dissatisfaction ]');
+
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toMatchObject({type: 'sq-bracket-open', value: '['});
+        expect(tokens[1]).toMatchObject({type: 'source', value: 'Divine dissatisfaction'});
+        expect(tokens[2]).toMatchObject({type: 'sq-bracket-closed', value: ']'});
+
+      });
 
       // '==' (knots)
 
@@ -366,6 +417,18 @@ describe('Parser', () => {
         expect(tokens[8]).toMatchObject({type: 'fl-conditional-end', value: '?>'})
       })
     })
+
+    describe('invalid input tests', () => {
+      it('should reject non-string input', () => {
+        const parser = new Parser();
+
+        function tokenizeNonString() {
+          parser.tokenize(42);
+        }
+        expect(tokenizeNonString).toThrow('non-string input')
+      })
+
+    });
   });
 
   describe('ast-creation', () => {
