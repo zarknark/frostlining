@@ -153,8 +153,9 @@ describe('Renderer', () => {
       let inputAndResult = [
         {
           input: '<& Click me! | Your computer is now infected with chlamydia. &>',
-          output: '<span id="id-0" onclick="toggleFootnote()">Click me!</span>' +
-              '<span id="id-0-footnote">Your computer is now infected with chlamydia.</span>'
+          output: '<span id="id-0" class="footnote-label">Click me!</span>' +
+              '<span id="id-0-footnote" class="footnote fl-hidden">Your computer is now infected with chlamydia.</span>' +
+              '<script>$("#id-0").on("click",toggleFootnote)</script>'
         }
       ]
 
@@ -213,8 +214,9 @@ describe('Renderer', () => {
                 "Shaking the rain from your <a href=\"javascript:void(0)\" data-passage=\"Cloak\">cloak</a>, " +
                 "you step gratefully inside." +
               "<% } %>\n\n" +
-              "You are standing in a <span id=\"id-0\" onclick=\"toggleFootnote()\">spacious hall</span>" +
-              "<span id=\"id-0-footnote\">It is splendidly decorated in red and gold, with glittering chandeliers overhead</span>.\n\n" +
+              "You are standing in a <span id=\"id-0\" class=\"footnote-label\">spacious hall</span>" +
+              "<span id=\"id-0-footnote\" class=\"footnote fl-hidden\">It is splendidly decorated in red and gold, " +
+              "with glittering chandeliers overhead</span><script>$(\"#id-0\").on(\"click\",toggleFootnote)</script>.\n\n" +
               "The entrance from the street is to the <a href=\"javascript:void(0)\" data-passage=\"Outside\">north</a>, " +
               "and there are doorways <a href=\"javascript:void(0)\" data-passage=\"Bar\">south</a> and " +
               "<a href=\"javascript:void(0)\" data-passage=\"Cloakroom\">west</a>.\n"
