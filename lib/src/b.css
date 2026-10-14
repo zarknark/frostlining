@@ -47,6 +47,10 @@ tw-sidebar {
     text-decoration-color: #a77;
 }
 
+.fl-label:hover {
+    color: #c99;
+}
+
 .fl-footnote {
     padding: 0 0.5em;
     background: #ccb;

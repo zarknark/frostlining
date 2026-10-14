@@ -176,6 +176,15 @@ describe('Parser', () => {
         expect(tokens[3]).toMatchObject({type: 'newline', value: '\n'});
       })
 
+      it('should deal with trailing periods appropriately', () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize("<|variable_name.");
+        expect(tokens.length).toBe(3);
+        expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable_name'});
+        expect(tokens[2]).toMatchObject({type: 'source', value: '.'});
+      })
+
       it('should not parse words when whitespace follows a varname tag', () => {
         const parser = new Parser();
         let tokens = parser.tokenize("<|\n\nvariable-name ");
