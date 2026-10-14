@@ -1,7 +1,6 @@
 import Parser from '../../lib/passage/Parser.js';
 import Renderer from "../../lib/passage/Renderer.js";
 import $ from 'jquery';
-import {output} from "../../webpack.config.cjs";
 
 // Mock window.story.state for _.template
 global.window = {};
@@ -155,7 +154,7 @@ describe('Renderer', () => {
         {
           input: '<& Click me! | Your computer is now infected with chlamydia. &>',
           output: '<span id="id-0" onclick="toggleFootnote()">Click me!</span>' +
-              '<span id="id-0-footnote"><em>(Your computer is now infected with chlamydia.)</em></span>'
+              '<span id="id-0-footnote">Your computer is now infected with chlamydia.</span>'
         }
       ]
 
@@ -215,7 +214,7 @@ describe('Renderer', () => {
                 "you step gratefully inside." +
               "<% } %>\n\n" +
               "You are standing in a <span id=\"id-0\" onclick=\"toggleFootnote()\">spacious hall</span>" +
-              "<span id=\"id-0-footnote\"><em>(It is splendidly decorated in red and gold, with glittering chandeliers overhead)</em></span>.\n\n" +
+              "<span id=\"id-0-footnote\">It is splendidly decorated in red and gold, with glittering chandeliers overhead</span>.\n\n" +
               "The entrance from the street is to the <a href=\"javascript:void(0)\" data-passage=\"Outside\">north</a>, " +
               "and there are doorways <a href=\"javascript:void(0)\" data-passage=\"Bar\">south</a> and " +
               "<a href=\"javascript:void(0)\" data-passage=\"Cloakroom\">west</a>.\n"
