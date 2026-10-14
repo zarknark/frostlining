@@ -125,7 +125,7 @@ describe('Renderer', () => {
             you've had."
           :>`,
           output: `
-          <p id="start" classes="chapter-start text">
+          <p id="start" class="chapter-start text">
             In my younger and more vulnerable years my father gave me some advice
             that I’ve been turning over in my mind ever since.         
           </p>
