@@ -1,12 +1,8 @@
 import Parser from '../../lib/passage/Parser.js';
-import $ from 'jquery';
 
 // Mock window.story.state for _.template
 global.window = {};
 window.story = { state: { foo: 'bar', testVar: 'testValue' } };
-
-// Mock jQuery event trigger
-$.event = { trigger: jest.fn() };
 
 describe('Parser', () => {
   beforeEach(() => {
@@ -166,16 +162,16 @@ describe('Parser', () => {
       // '<|[var_name]'
       it('should parse varname tags with words', () => {
         const parser = new Parser();
-        let tokens = parser.tokenize("<|variable-name");
+        let tokens = parser.tokenize("<|variable_name");
 
         expect(tokens.length).toBe(2);
         expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable-name'});
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable_name'});
 
-        tokens = parser.tokenize("<|variable-name \n\n");
+        tokens = parser.tokenize("<|variable_name \n\n");
         expect(tokens.length).toBe(4);
         expect(tokens[0]).toMatchObject({type: 'fl-variable', value: '<|'});
-        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable-name'});
+        expect(tokens[1]).toMatchObject({type: 'word', value: 'variable_name'});
         expect(tokens[2]).toMatchObject({type: 'newline', value: '\n'});
         expect(tokens[3]).toMatchObject({type: 'newline', value: '\n'});
       })
@@ -442,7 +438,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'UnderscoreTemplate',
               children: [
@@ -459,7 +455,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'Source',
               value: 'Hello,'
@@ -481,7 +477,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'UnderscoreInterpolateEscaped',
               children: [
@@ -502,7 +498,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'TwineLink',
               label: [{type: 'Source', value: 'One Fish'}],
@@ -542,11 +538,11 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             { type: 'Source', value: 'Hello,' },
             {
               type: 'FrostliningInterpolate',
-              var_name: 'user.name'
+              value: 'user.name'
             },
             { type: 'Source', value: '!' }
           ]
@@ -561,7 +557,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'FrostliningConditional',
               conditional: 's.hour === "midnight"',
@@ -579,7 +575,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'FrostliningConditional',
               conditional: 's.hour === "midnight"',
@@ -612,7 +608,7 @@ describe('Parser', () => {
         let ast = parser.toAst(parser.tokenize(input));
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {type: 'Newline', value: '\n'},
             {
               type: 'FrostliningHtmlShorthand',
@@ -657,16 +653,16 @@ describe('Parser', () => {
         <:: You never knew that it was <:em:Babylon / 'Til it was gone :>
         `
         ast = parser.toAst(parser.tokenize(input));
-        expect(ast.body.length).toBe(17);
-        expect(ast.body[0]).toStrictEqual({type: 'Newline', value: '\n'});
-        expect(ast.body[1]).toStrictEqual({
+        expect(ast.children.length).toBe(17);
+        expect(ast.children[0]).toStrictEqual({type: 'Newline', value: '\n'});
+        expect(ast.children[1]).toStrictEqual({
           type: 'FrostliningHtmlShorthand',
           tag: 'p',
           id: '',
           classes: [],
           children: [{type: 'Source', value: 'Because she loved you so'}]
         });
-        expect(ast.body[3]).toStrictEqual({
+        expect(ast.children[3]).toStrictEqual({
           type: 'FrostliningHtmlShorthand',
           tag: 'p',
           id: '',
@@ -682,7 +678,7 @@ describe('Parser', () => {
             }
           ]
         });
-        expect(ast.body[7]).toStrictEqual({
+        expect(ast.children[7]).toStrictEqual({
           type: 'FrostliningHtmlShorthand',
           tag: 'p',
           id: '',
@@ -717,7 +713,7 @@ describe('Parser', () => {
 
         expect(ast).toStrictEqual({
           type: 'Passage',
-          body: [
+          children: [
             {
               type: 'FrostliningFootnote',
               label: [{ type: 'Source', value: 'Click me!' }],
