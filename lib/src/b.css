@@ -41,6 +41,7 @@ tw-sidebar {
 }
 
 .fl-label {
+    cursor: pointer;
     text-decoration-line: underline;
     text-decoration-style: double;
     text-decoration-color: #a77;
@@ -48,7 +49,7 @@ tw-sidebar {
 
 .fl-footnote {
     padding: 0 0.5em;
-    background: #ddd;
+    background: #ccb;
 }
 
 a:hover {
