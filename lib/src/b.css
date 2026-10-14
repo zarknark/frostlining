@@ -42,13 +42,12 @@ tw-sidebar {
 
 .fl-label {
     cursor: pointer;
-    text-decoration-line: underline;
-    text-decoration-style: double;
-    text-decoration-color: #a77;
+    border-style: double;
+    border-color: #a77;
 }
 
 .fl-label:hover {
-    color: #c99;
+    color: #a77;
 }
 
 .fl-footnote {
