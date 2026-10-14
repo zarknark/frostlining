@@ -214,8 +214,8 @@ describe('Renderer', () => {
                 "Shaking the rain from your <a href=\"javascript:void(0)\" data-passage=\"Cloak\">cloak</a>, " +
                 "you step gratefully inside." +
               "<% } %>\n\n" +
-              "You are standing in a <span id=\"id-0\" class=\"footnote-label\">spacious hall</span>" +
-              "<span id=\"id-0-footnote\" class=\"footnote fl-hidden\">It is splendidly decorated in red and gold, " +
+              "You are standing in a <span id=\"id-0\" class=\"fl-label\">spacious hall</span>" +
+              "<span id=\"id-0-footnote\" class=\"fl-footnote fl-hidden\">It is splendidly decorated in red and gold, " +
               "with glittering chandeliers overhead</span><script>$(\"#id-0\").on(\"click\",toggleFootnote)</script>.\n\n" +
               "The entrance from the street is to the <a href=\"javascript:void(0)\" data-passage=\"Outside\">north</a>, " +
               "and there are doorways <a href=\"javascript:void(0)\" data-passage=\"Bar\">south</a> and " +

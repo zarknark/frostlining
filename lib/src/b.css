@@ -40,6 +40,17 @@ tw-sidebar {
 	margin-left: 1em;
 }
 
+.fl-label {
+    text-decoration-line: underline;
+    text-decoration-style: double;
+    text-decoration-color: #a77;
+}
+
+.fl-footnote {
+    padding: 0 0.5em;
+    background: #ddd;
+}
+
 a:hover {
 	color: #cc8929;
 	text-decoration-color: #cc8929;
