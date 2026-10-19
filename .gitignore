@@ -24,3 +24,6 @@ jspm_packages/
 # build & IDEA folders
 .idea/
 build/
+
+# test report HTML files
+test/reports/*.html

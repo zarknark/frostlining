@@ -623,6 +623,7 @@ describe('Parser', () => {
               type: 'FrostliningHtmlShorthand',
               tag: 'p',
               id: 'start',
+              javascriptVoid: false,
               classes: ['chapter-start', 'text'],
               children: [
                 {type: 'Newline', value: '\n'},
@@ -637,6 +638,7 @@ describe('Parser', () => {
               type: 'FrostliningHtmlShorthand',
               tag: 'p',
               id: '',
+              javascriptVoid: false,
               classes: [],
               children: [
                 {type: 'Newline', value: '\n'},
@@ -668,6 +670,7 @@ describe('Parser', () => {
           type: 'FrostliningHtmlShorthand',
           tag: 'p',
           id: '',
+          javascriptVoid: false,
           classes: [],
           children: [{type: 'Source', value: 'Because she loved you so'}]
         });
@@ -675,6 +678,7 @@ describe('Parser', () => {
           type: 'FrostliningHtmlShorthand',
           tag: 'p',
           id: '',
+          javascriptVoid: false,
           classes: [],
           children: [
             {type: 'Source', value: 'Pretty as a picture that you'},
@@ -682,6 +686,7 @@ describe('Parser', () => {
               type: 'FrostliningHtmlShorthand',
               tag: 'em',
               id: '',
+              javascriptVoid: false,
               classes: [],
               children: [{type: 'Source', value: 'didn\'t post'}]
             }
@@ -691,6 +696,7 @@ describe('Parser', () => {
           type: 'FrostliningHtmlShorthand',
           tag: 'p',
           id: '',
+          javascriptVoid: false,
           classes: [],
           children: [
             {type: 'Source', value: 'Never'},
@@ -698,6 +704,7 @@ describe('Parser', () => {
               type: 'FrostliningHtmlShorthand',
               tag: 'em',
               id: '',
+              javascriptVoid: false,
               classes: [],
               children: [{type: 'Source', value: 'official'}]
             },
@@ -706,6 +713,7 @@ describe('Parser', () => {
               type: 'FrostliningHtmlShorthand',
               tag: 'em',
               id: '',
+              javascriptVoid: false,
               classes: [],
               children: [{type: 'Source', value: 'single'}]
             },
