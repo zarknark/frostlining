@@ -390,6 +390,29 @@ describe('Parser', () => {
               { type: 'source', value: "</div>" }, { type: 'newline', value: "\n" },
               { type: 'source', value: "<p>Selector challenge: <code>.level-1 .level-3 .level-5 p</code></p>" },
             ]
+          },
+          {
+            input: (
+              `<script>
+                addEventListener = (event, callback) => {
+                  if (!this._listeners.has(event)) {
+                      this._listeners.set(event, []);
+                    }
+                    this._listeners.get(event).push(callback);
+                  }
+              </script>`),
+            expected: [
+              { type: 'source', value: '<script>' }, { type: 'newline', value: "\n" },
+              { type: 'source', value: 'addEventListener = (event, callback) => {' }, { type: 'newline', value: "\n" },
+              { type: 'source', value: 'if (!this._listeners.has(event)) {' }, { type: 'newline', value: "\n" },
+              { type: 'source', value: 'this._listeners.set(event,' },
+              { type: 'sq-bracket-open', value: '['}, { type: 'sq-bracket-closed', value: ']'}, { type: 'source', value: ');' },
+              { type: 'newline', value: "\n" },
+              { type: 'source', value: '}' }, { type: 'newline', value: "\n" },
+              { type: 'source', value: 'this._listeners.get(event).push(callback);' }, { type: 'newline', value: "\n" },
+              { type: 'source', value: '}' }, { type: 'newline', value: "\n" },
+              { type: 'source', value: '</script>' }
+            ]
           }
         ]
         inputAndResult.forEach((item) => {
@@ -739,6 +762,31 @@ describe('Parser', () => {
           ]
         })
       });
+
+      it("edgecases", () => {
+        const parser = new Parser()
+        let input = (`<script> this._listeners.set(event, []); </script>`);
+
+        let ast = parser.toAst(parser.tokenize(input));
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          children: [
+            {
+              type: 'Source',
+              value: '<script> this._listeners.set(event,'
+            },
+            {
+              type: 'BracketedText',
+              children: []
+            },
+            {
+              type: 'Source',
+              value: '); </script>'
+            }
+          ]
+        });
+      })
     })
 
     // TODO: describe('invalid input tests', () => {})
