@@ -153,8 +153,8 @@ describe('Renderer', () => {
       let inputAndResult = [
         {
           input: '<& Click me! | Your computer is now infected with chlamydia. &>',
-          output: '<span id="id-0" class="footnote-label">Click me!</span>' +
-              '<span id="id-0-footnote" class="footnote fl-hidden">Your computer is now infected with chlamydia.</span>' +
+          output: '<span id="id-0" class="fl-label">Click me!</span>' +
+              '<span id="id-0-footnote" class="fl-footnote fl-hidden">Your computer is now infected with chlamydia.</span>' +
               '<script>$("#id-0").on("click",toggleFootnote)</script>'
         }
       ]
@@ -199,6 +199,25 @@ describe('Renderer', () => {
       });
     });
 
+    it('Edgecases', () => {
+
+      let input = [
+          "<script> if (time === 'midnight' || time === 'noon') { print('The clock struck twelve.'); }</script>",
+          "<script> if (time === 'midnight' && time === 'noon') { print('The clock twitches, then slowly starts to melt.'); }</script>",
+          "Welcome, <%= s.player.name %>! You are level <%= s.player.level %>.\n" +
+          "HP: <%= s.player.hp %>\n\n" +
+          "<% if (s.player.getSkill(\"Swordsmanship\") > 10) { %> You are skilled with a sword! <% } %>"
+      ];
+
+      const parser = new Parser();
+      const renderer = new Renderer();
+      input.forEach((item) => {
+        let tokens = parser.tokenize(item);
+        let ast = parser.toAst(tokens);
+        let output = renderer.astToPassageTemplate(ast);
+        expect(output).toBe(item);
+      });
+    });
     it('Complex parsing', () => {
       let inputAndResult = [
         {
