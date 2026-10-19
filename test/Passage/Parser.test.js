@@ -763,7 +763,7 @@ describe('Parser', () => {
         })
       });
 
-      it("edgecases", () => {
+      it("Edgecases", () => {
         const parser = new Parser()
         let input = (`<script> this._listeners.set(event, []); </script>`);
 
@@ -786,6 +786,28 @@ describe('Parser', () => {
             }
           ]
         });
+
+        input = `<script> const listeners = this._listeners.get(event) || []; </script>`;
+        ast = parser.toAst(parser.tokenize(input));
+
+        expect(ast).toStrictEqual({
+          type: 'Passage',
+          children: [
+            {
+              type: 'Source',
+              value: '<script> const listeners = this._listeners.get(event) ||'
+            },
+            {
+              type: 'BracketedText',
+              children: []
+            },
+            {
+              type: 'Source',
+              value: '; </script>'
+            }
+          ]
+        });
+
       })
     })
 

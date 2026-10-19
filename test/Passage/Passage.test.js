@@ -353,7 +353,7 @@ describe('Passage', () => {
             
             Total items: <%= itemCount %>
             Has healing items: <%= hasPotion %>
-            Inventory age: <%= s.inventory.age %> ms
+            Inventory age: <%= s.inventory.age %>< >ms
             `);
 
             const useHtml = usePassage.render();
@@ -403,8 +403,8 @@ describe('Passage', () => {
                 s.restoredCharacter = loaded;
             %>
             
-            Original: <%= s.character.name %> (INT: <%= s.character.getStat('intelligence') %>)
-            Restored: <%= s.restoredCharacter.name %> (INT: <%= s.restoredCharacter.getStat('intelligence') %>)
+            Original: <%= s.character.name %>< >(INT: <%= s.character.getStat('intelligence') %>)
+            Restored: <%= s.restoredCharacter.name %>< >(INT: <%= s.restoredCharacter.getStat('intelligence') %>)
             Inventory: <%= s.restoredCharacter.inventory.join(', ') %>
             `);
 
