@@ -205,8 +205,8 @@ describe('Renderer', () => {
           "<script> if (time === 'midnight' || time === 'noon') { print('The clock struck twelve.'); }</script>",
           "<script> if (time === 'midnight' && time === 'noon') { print('The clock twitches, then slowly starts to melt.'); }</script>",
           "Welcome, <%= s.player.name %>! You are level <%= s.player.level %>.\n" +
-          "HP: <%= s.player.hp %>\n\n" +
-          "<% if (s.player.getSkill(\"Swordsmanship\") > 10) { %> You are skilled with a sword! <% } %>"
+            "HP: <%= s.player.hp %>\n\n" +
+            "<% if (s.player.getSkill(\"Swordsmanship\") > 10) { %> You are skilled with a sword! <% } %>",
       ];
 
       const parser = new Parser();

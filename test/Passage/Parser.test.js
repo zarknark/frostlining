@@ -308,6 +308,23 @@ describe('Parser', () => {
 
       });
 
+      // '<   >' (explicit whitespace)
+      it("should recognize explicit whitespace", () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize('<   \t>');
+
+        expect(tokens.length).toBe(1);
+        expect(tokens[0]).toMatchObject({type: 'fl-whitespace', value: '   \t'});
+      });
+
+      it("should not parse explicit whitespace if another character is present", () => {
+        const parser = new Parser();
+        let tokens = parser.tokenize('<   t>');
+
+        expect(tokens.length).toBe(1);
+        expect(tokens[0]).toMatchObject({type: 'source', value: '<   t>'});
+      })
+
       // Recognize bracketed text
       it("should recognize bracketed text", () => {
         const parser = new Parser();
@@ -764,50 +781,51 @@ describe('Parser', () => {
       });
 
       it("Edgecases", () => {
-        const parser = new Parser()
-        let input = (`<script> this._listeners.set(event, []); </script>`);
+        it("Bracketed text", () => {
+          const parser = new Parser()
+          let input = (`<script> this._listeners.set(event, []); </script>`);
 
-        let ast = parser.toAst(parser.tokenize(input));
+          let ast = parser.toAst(parser.tokenize(input));
 
-        expect(ast).toStrictEqual({
-          type: 'Passage',
-          children: [
-            {
-              type: 'Source',
-              value: '<script> this._listeners.set(event,'
-            },
-            {
-              type: 'BracketedText',
-              children: []
-            },
-            {
-              type: 'Source',
-              value: '); </script>'
-            }
-          ]
-        });
+          expect(ast).toStrictEqual({
+            type: 'Passage',
+            children: [
+              {
+                type: 'Source',
+                value: '<script> this._listeners.set(event,'
+              },
+              {
+                type: 'BracketedText',
+                children: []
+              },
+              {
+                type: 'Source',
+                value: '); </script>'
+              }
+            ]
+          });
 
-        input = `<script> const listeners = this._listeners.get(event) || []; </script>`;
-        ast = parser.toAst(parser.tokenize(input));
+          input = `<script> const listeners = this._listeners.get(event) || []; </script>`;
+          ast = parser.toAst(parser.tokenize(input));
 
-        expect(ast).toStrictEqual({
-          type: 'Passage',
-          children: [
-            {
-              type: 'Source',
-              value: '<script> const listeners = this._listeners.get(event) ||'
-            },
-            {
-              type: 'BracketedText',
-              children: []
-            },
-            {
-              type: 'Source',
-              value: '; </script>'
-            }
-          ]
-        });
-
+          expect(ast).toStrictEqual({
+            type: 'Passage',
+            children: [
+              {
+                type: 'Source',
+                value: '<script> const listeners = this._listeners.get(event) ||'
+              },
+              {
+                type: 'BracketedText',
+                children: []
+              },
+              {
+                type: 'Source',
+                value: '; </script>'
+              }
+            ]
+          });
+        })
       })
     })
 
