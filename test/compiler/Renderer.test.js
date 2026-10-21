@@ -1,6 +1,7 @@
-import Parser from '../../lib/passage/Parser.js';
-import Renderer from "../../lib/passage/Renderer.js";
+import AstGenerator from '../../lib/compiler/AstGenerator.js';
+import Renderer from "../../lib/compiler/Renderer.js";
 import $ from 'jquery';
+import Lexer from "../../lib/compiler/Lexer.js";
 
 // Mock window.story.state for _.template
 global.window = {};
@@ -8,9 +9,14 @@ global.window = {};
 // Mock jQuery event trigger
 $.event = { trigger: jest.fn() };
 
+const lexer = new Lexer();
+const generator = new AstGenerator();
+const renderer = new Renderer();
+
 describe('Renderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    renderer.debugCounter = 0;
   });
 
   describe('Basic input', () => {
@@ -21,11 +27,9 @@ describe('Renderer', () => {
           "<%- 1+2 %>",
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
       input.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item);
       });
     });
@@ -58,11 +62,9 @@ describe('Renderer', () => {
         }
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
       inputAndResult.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item.input));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item.input));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item.output);
       });
     });
@@ -79,12 +81,10 @@ describe('Renderer', () => {
         }
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
 
       inputAndResult.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item.input));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item.input));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item.output);
       });
     });
@@ -101,12 +101,9 @@ describe('Renderer', () => {
         }
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
-
       inputAndResult.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item.input));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item.input));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item.output);
       });
     });
@@ -137,12 +134,9 @@ describe('Renderer', () => {
         }
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
-
       inputAndResult.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item.input));
-        let output = renderer.astToPassageTemplate(ast).split("\n").map((e) => e.trim());
+        let ast = generator.generateAst(lexer.tokenize(item.input));
+        let output = renderer.renderAst(ast).split("\n").map((e) => e.trim());
         let expected = item.output.split("\n").map((e) => e.trim());
 
         expect(output).toStrictEqual(expected);
@@ -159,13 +153,11 @@ describe('Renderer', () => {
         }
       ]
 
-      const parser = new Parser();
-      const renderer = new Renderer();
       renderer.debugMode = true;
 
       inputAndResult.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item.input));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item.input));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item.output);
       });
     });
@@ -190,11 +182,9 @@ describe('Renderer', () => {
           "<p>Selector challenge: <code>.level-1 .level-3 .level-5 p</code></p>"
       ]
 
-      const parser = new Parser();
-      const renderer = new Renderer();
       input.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item);
       });
     });
@@ -209,12 +199,10 @@ describe('Renderer', () => {
             "<% if (s.player.getSkill(\"Swordsmanship\") > 10) { %> You are skilled with a sword! <% } %>",
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
       input.forEach((item) => {
-        let tokens = parser.tokenize(item);
-        let ast = parser.toAst(tokens);
-        let output = renderer.astToPassageTemplate(ast);
+        let tokens = lexer.tokenize(item);
+        let ast = generator.generateAst(tokens);
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item);
       });
     });
@@ -243,13 +231,11 @@ describe('Renderer', () => {
         }
       ];
 
-      const parser = new Parser();
-      const renderer = new Renderer();
       renderer.debugMode = true;
 
       inputAndResult.forEach((item) => {
-        let ast = parser.toAst(parser.tokenize(item.input));
-        let output = renderer.astToPassageTemplate(ast);
+        let ast = generator.generateAst(lexer.tokenize(item.input));
+        let output = renderer.renderAst(ast);
         expect(output).toBe(item.output);
       });
     });
