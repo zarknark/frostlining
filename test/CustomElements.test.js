@@ -49,24 +49,24 @@ describe('Custom HTML Elements', () => {
   });
 
   test('custom elements with dash shorthand should render correctly', () => {
-    const passage = new Passage(1, 'test', [], '<custom-elem ->hidden content</custom-elem>');
+    const passage = new Passage(1, 'test', [], '<:custom_elem-: hidden content :>');
     const result = passage.render();
     
     // Should apply the hidden style to custom-elem, not create <custom>
-    expect(result).toContain('<custom-elem');
-    expect(result).toContain('style="display:none"');
-    expect(result).toContain('hidden content</custom-elem>');
+    expect(result).toContain('<custom_elem');
+    expect(result).toContain('class="fl-hidden"');
+    expect(result).toContain('hidden content</custom_elem>');
     expect(result).not.toContain('<custom>'); // Should not turn into <custom> (without -elem)
   });
 
   test('multiple custom elements should render correctly', () => {
-    const passage = new Passage(1, 'test', [], '<my-widget>widget1</my-widget><another-element ->hidden widget</another-element>');
+    const passage = new Passage(1, 'test', [], '<:my_widget:widget1 <:another_element-: hidden widget :>');
     const result = passage.render();
     
-    expect(result).toContain('<my-widget>widget1</my-widget>');
-    expect(result).toContain('<another-element');
-    expect(result).toContain('style="display:none"');
-    expect(result).toContain('hidden widget</another-element>');
+    expect(result).toContain('<my_widget>widget1</my_widget>');
+    expect(result).toContain('<another_element');
+    expect(result).toContain('class="fl-hidden"');
+    expect(result).toContain('hidden widget</another_element>');
   });
 
   // Note: Nested custom elements with shorthand attributes are not currently supported
@@ -83,11 +83,11 @@ describe('Custom HTML Elements', () => {
   });
 
   test('standard HTML elements should still work with shorthands', () => {
-    const passage = new Passage(1, 'test', [], '<div ->hidden div</div><span .highlight>highlighted</span>');
+    const passage = new Passage(1, 'test', [], '<:div-: hidden div :><:span.highlight:highlighted');
     const result = passage.render();
     
     expect(result).toContain('<div');
-    expect(result).toContain('style="display:none"');
+    expect(result).toContain('class="fl-hidden"');
     expect(result).toContain('hidden div</div>');
     expect(result).toContain('<span');
     expect(result).toContain('class="highlight"');
